@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>BIT&Egrave; - Principal</title>
+</h:head>
+
+<h:body>
+
+	<h:form id="form_list">
+		<div>
+			<div align="center">
+				<br />
+				<p:commandButton value="Agregar Sección"
+					actionListener="#{catalogo.clearSeccion}"
+					oncomplete="form_add:addseccionDialog.show()"
+					update="form_add:txt_addseccion,form_add:txt_addcodigo,form_add:msgA" />
+				<br /> <br />
+			</div>
+			<!---->
+			<div>
+
+				<div class="exporters">
+					<h:commandLink
+						action="#{reporte.redireccionReporte('/SeccionServlet')}">
+						<p:graphicImage style="border: 0; float: left; margin-top: -5px; "
+							value="../../Styles/images/document_pdf.png" />
+					</h:commandLink>
+				</div>
+
+				<p:dataTable id="secciones" var="dataTableItem"
+					widgetVar="listaSecciones" value="#{catalogo.seccionesAll}"
+					style="margin-left: 1%; margin-right: 1%"
+					emptyMessage="No se encuentran registros" paginator="true"
+					rows="15" selection="#{catalogo.selectedSeccion}"
+					selectionMode="single"
+					onRowSelectUpdate="form_edit:txt_editseccion,form_edit:txt_editcodigo,form_edit:estado,form_edit:msgE"
+					onRowSelectComplete="form_edit:seccionDialog.show()">
+					<f:facet name="header">
+                                    Lista de secciones
+                                </f:facet>
+
+					<p:column filterBy="#{dataTableItem.nombre}"
+						sortBy="#{dataTableItem.nombre}" filterMatchMode="contains">
+						<f:facet name="header">
+							<h:outputText value="Nombre" />
+						</f:facet>
+						<h:outputText value="#{dataTableItem.nombre}" />
+					</p:column>
+
+					<p:column filterBy="#{dataTableItem.codigo}"
+						sortBy="#{dataTableItem.codigo}" filterMatchMode="contains">
+						<f:facet name="header">
+							<h:outputText value="C&oacute;digo" />
+						</f:facet>
+						<h:outputText value="#{dataTableItem.codigo}" />
+					</p:column>
+
+					<p:column filterBy="#{dataTableItem.getActivoString()}"
+						sortBy="#{dataTableItem.getActivoString()}" style="width: 20px"
+						filterMatchMode="contains">
+						<f:facet name="header">
+							<h:outputText value="Activo" />
+						</f:facet>
+						<h:outputText value="#{dataTableItem.getActivoString()}" />
+					</p:column>
+				</p:dataTable>
+			</div>
+			<br />
+			<br />
+			<br />
+			<div
+				style="height: 30px; text-align: center; vertical-align: middle; line-height: 30px">
+				Sistema para Gestion de Proyectos VAS 2011</div>
+		</div>
+	</h:form>
+
+	<h:form id="form_add">
+		<p:dialog header="Agregar Secci&oacute;n" widgetVar="addseccionDialog"
+			id="addseccionDialog" resizable="false" width="600"
+			showEffect="explode" hideEffect="explode" modal="true">
+			<h:outputText value="Los campos con * son obligatorios"
+				styleClass="campoObligatorio" />
+			<table width="580">
+				<tr>
+					<td><h:outputLabel value="C&oacute;digo :*"></h:outputLabel></td>
+					<td><p:inputText value="#{catalogo.seccion.codigo}" size="40"
+							required="true" requiredMessage="El codigo es obligatorio."
+							maxlength="80" id="txt_addcodigo">
+						</p:inputText></td>
+				</tr>
+				<tr>
+					<td><h:outputLabel value="Nombre :*"></h:outputLabel></td>
+					<td><p:inputText value="#{catalogo.seccion.nombre}" size="40"
+							required="true" requiredMessage="El nombre es obligatorio."
+							maxlength="80" id="txt_addseccion">
+						</p:inputText></td>
+				</tr>
+				<tr>
+					<td height="20"></td>
+				</tr>
+				<tr>
+					<td><p:commandButton value="Agregar" id="addseccionBoton"
+							update="msgA" actionListener="#{catalogo.guardarSeccion}"
+							oncomplete="handleComplete(xhr, status, args)" />
+					</td>
+					<td align="right"><p:commandButton value="Cancelar"
+							oncomplete="addseccionDialog.hide()" /></td>
+				</tr>
+			</table>
+			<p:messages id="msgA" />
+		</p:dialog>
+	</h:form>
+
+	<h:form id="form_edit">
+		<p:dialog header="Detalle Secci&oacute;n" widgetVar="seccionDialog"
+			resizable="false" width="600" showEffect="explode"
+			hideEffect="explode" modal="true">
+
+			<table width="580">
+				<tr>
+					<td><h:outputLabel value="C&oacute;digo :"></h:outputLabel></td>
+					<td><p:inputText value="#{catalogo.selectedSeccion.codigo}"
+							size="40" required="true"
+							requiredMessage="El codigo es obligatorio." maxlength="80"
+							id="txt_editcodigo">
+						</p:inputText></td>
+				</tr>
+				<tr>
+					<td><h:outputText value="Nombre:  " /></td>
+					<td><p:inputText label="nombre" size="40" maxlength="80"
+							value="#{catalogo.selectedSeccion.nombre}" required="true"
+							requiredMessage="El nombre es obligatorio." id="txt_editseccion" />
+					</td>
+				</tr>
+				<tr>
+					<td><h:outputText value="Estado:  " /></td>
+					<td><h:selectOneMenu id="estado"
+							value="#{catalogo.selectedSeccion.activo}">
+							<f:selectItem itemLabel="Seleccione el estado" itemValue="" />
+							<f:selectItem itemLabel="Activo" itemValue="true" />
+							<f:selectItem itemLabel="Inactivo" itemValue="false" />
+						</h:selectOneMenu></td>
+				</tr>
+				<tr>
+					<td height="20"></td>
+				</tr>
+				<tr>
+					<td><p:commandButton value="Modificar" id="editseccionBoton"
+							update="msgE" actionListener="#{catalogo.modificarSeccion}"
+							oncomplete="handleComplete(xhr, status, args)" />
+					</td>
+					<td align="right"><p:commandButton value="Cancelar"
+							oncomplete="seccionDialog.hide()" /></td>
+				</tr>
+			</table>
+			<p:messages id="msgE" />
+		</p:dialog>
+	</h:form>
+	<h:form id="espera">
+		<p:dialog modal="true" widgetVar="statusDialog"
+			header="Cargando datos..." width="190" draggable="false"
+			resizable="false" closable="false">
+			<p:graphicImage value="../Styles/images/cargarPagina.gif" />
+		</p:dialog>
+	</h:form>
+</h:body>
+
+</html>
+
